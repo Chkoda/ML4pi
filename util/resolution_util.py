@@ -11,7 +11,8 @@ from . import plot_util as pu
 
 
 def responsePlot(x, y, figfile='', statistic='median',
-                 xlabel='True Energy [GeV]', ylabel='Reconstructed / True Energy',
+                 xlabel='True Energy [GeV]', ylabel='Predicted Energy / True Energy',
+                 xlim=(0.3,1000), ylim=(0,3), baseline=True,
                  atlas_x=-1, atlas_y=-1, simulation=False,
                  textlist=[]):
     xbin = [10**exp for exp in np.arange(-1.0, 3.1, 0.1)]
@@ -25,11 +26,12 @@ def responsePlot(x, y, figfile='', statistic='median',
     fig = plt.figure()
     fig.patch.set_facecolor('white')
     plt.hist2d(x, y, bins=[xbin, ybin], norm=LogNorm(),zorder = -1)
-    plt.plot([0.1, 1000], [1, 1], linestyle='--', color='black')
     plt.plot(xcenter, profileXMed, color='red')
+    if baseline:
+        plt.plot([0.1, 1000], [1, 1], linestyle='--', color='black')
     plt.xscale('log')
-    plt.ylim(0, 3)
-    plt.xlim(0.3,1000)
+    plt.ylim(ylim)
+    plt.xlim(xlim)
     pu.ampl.set_xlabel(xlabel)
     pu.ampl.set_ylabel(ylabel)
     # ampl.set_zlabel('Clusters')
@@ -54,7 +56,7 @@ def stdOverMean(x):
 def iqrOverMed(x):
     # get the IQR via the percentile function
     # 84 is median + 1 sigma, 16 is median - 1 sigma
-    q84, q16 = np.percentile(x, [75, 25])
+    q84, q16 = np.percentile(x, [84, 16])
     iqr = q84 - q16
     med = np.median(x)
     return iqr / med
